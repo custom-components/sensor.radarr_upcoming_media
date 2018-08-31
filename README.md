@@ -20,7 +20,7 @@ sensor:
 - platform: radarr_upcoming_media
   api_key: YOUR_API_KEY
   host: 192.168.1.4
-  port: 8989
+  port: 7878
   days: 120
   ssl: true
 ```
@@ -31,7 +31,7 @@ sensor:
 | --- | --- | --- | ---
 | api_key | | yes | Your Radarr API key
 | host | localhost | no | The host Radarr is running on.
-| port | 8989 | no | The port Radarr is running on.
+| port | 7878 | no | The port Radarr is running on.
 | urlbase | / | no | The base URL Radarr is running under.
 | days | 60 | no | How many days to look ahead for the upcoming sensor, 1 means today only.
 | ssl | False | no | Whether or not to use SSL for Radarr. Set to `True` if you use SSL.
