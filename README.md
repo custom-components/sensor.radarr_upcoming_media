@@ -8,6 +8,7 @@ This component works with or without the default radarr component.</br></br>
 ## TODO:
 1. Make a "banner" view with fanart images, poster only for now
 2. Add genres as secondary info
+3. Hide/show physical releases & cinema releases
 
 ## Installation:
 
