@@ -107,10 +107,14 @@ class Radarr_UpcomingSensor(Entity):
         attribNum = 0
         for movie in self.data:
             attribNum += 1
-            f = open(directory + 'poster' + str(attribNum) + '.jpg','wb')
-            f.write(requests.get('http' + self.ssl + '://' + str(self.host) + ':' + str(self.port) + '/api' + re.sub('poster', 'poster-500', movie['images'][0]['url']) + '?apikey=' + self.apikey).content)
-            f.close()
+            p = open(directory + 'poster' + str(attribNum) + '.jpg','wb')
+            p.write(requests.get('http' + self.ssl + '://' + str(self.host) + ':' + str(self.port) + '/api' + re.sub('poster', 'poster-500', movie['images'][0]['url']) + '?apikey=' + self.apikey).content)
+            p.close()
+            b = open(directory + 'banner' + str(attribNum) + '.jpg','wb')
+            b.write(requests.get('http' + self.ssl + '://' + str(self.host) + ':' + str(self.port) + '/api' + re.sub('fanart', 'fanart-360', movie['images'][1]['url']) + '?apikey=' + self.apikey).content)
+            b.close()
             attributes['poster' + str(attribNum)] = '../local/custom-lovelace/upcoming-media-card/images/radarr/poster' + str(attribNum) + '.jpg'
+            attributes['banner' + str(attribNum)] = '../local/custom-lovelace/upcoming-media-card/images/radarr/banner' + str(attribNum) + '.jpg'
             attributes['title' + str(attribNum)] = movie['title']
             attributes['subtitle' + str(attribNum)] = movie['genres']
             if 'physicalRelease' in movie:
