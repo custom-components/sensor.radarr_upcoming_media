@@ -61,7 +61,7 @@ subtitle2: The Fool Us Zone
 airdate2: 2018-09-03
 airtime2: 20:00
 hasFile2: false
-info1: S03E12
+info2: S03E12
 ```
 
 Then all the user needs to do is put your service name in the config like so "service: sonarr".</br>
