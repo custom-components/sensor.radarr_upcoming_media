@@ -20,7 +20,7 @@ from homeassistant.const import (
     CONF_API_KEY, CONF_HOST, CONF_PORT, CONF_MONITORED_CONDITIONS, CONF_SSL)
 from homeassistant.helpers.entity import Entity
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -115,10 +115,10 @@ class Radarr_UpcomingSensor(Entity):
             attributes['subtitle' + str(attribNum)] = movie['genres']
             if 'physicalRelease' in movie:
                 attributes['airdate' + str(attribNum)] = movie['physicalRelease']
-                attributes['airtime' + str(attribNum)] = 'Available'
+                attributes['info' + str(attribNum)] = 'Available '
             else:
                 attributes['airdate' + str(attribNum)] = movie['inCinemas']
-                attributes['airtime' + str(attribNum)] = 'In Theaters'
+                attributes['info' + str(attribNum)] = 'In Theaters '
             attributes['hasFile' + str(attribNum)] = movie['hasFile']
         return attributes
 
