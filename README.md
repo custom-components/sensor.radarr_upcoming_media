@@ -1,3 +1,5 @@
+# :warning: This component is in a non-working state
+
 # Radarr Upcoming Media Component
 
 Component required to use the associated Lovelace card: [Upcoming_Media_Card](https://github.com/custom-cards/upcoming-media-card)</br>
