@@ -1,4 +1,4 @@
-# :warning: This component is in a non-working state
+# :warning: This component is in a non-working state :warning:
 
 # Radarr Upcoming Media Component
 
