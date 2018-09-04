@@ -20,7 +20,7 @@ from homeassistant.const import (
     CONF_API_KEY, CONF_HOST, CONF_PORT, CONF_MONITORED_CONDITIONS, CONF_SSL)
 from homeassistant.helpers.entity import Entity
 
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -123,8 +123,11 @@ class Radarr_UpcomingSensor(Entity):
                     attributes['banner' + str(self.attribNum)] = 'https://raw.githubusercontent.com/maykar/Home-Assistant-Config/master/notfound.jpg'
                 except KeyError:
                     attributes['banner' + str(self.attribNum)] = 'https://raw.githubusercontent.com/maykar/Home-Assistant-Config/master/notfound.jpg'
+                try:
+                    attributes['subtitle' + str(self.attribNum)] = movie['studio']
+                except KeyError:
+                    attributes['subtitle' + str(self.attribNum)] = 'unknown'
                 attributes['title' + str(self.attribNum)] = movie['title']
-                attributes['subtitle' + str(self.attribNum)] = movie['studio']
                 attributes['hasFile' + str(self.attribNum)] = movie['hasFile']
         return attributes
 
