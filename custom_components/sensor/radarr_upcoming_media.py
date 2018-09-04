@@ -20,7 +20,7 @@ from homeassistant.const import (
     CONF_API_KEY, CONF_HOST, CONF_PORT, CONF_MONITORED_CONDITIONS, CONF_SSL)
 from homeassistant.helpers.entity import Entity
 
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -103,8 +103,8 @@ class Radarr_UpcomingSensor(Entity):
         attributes = {}
         self.attribNum = 0
         for movie in self.data:
-        """The Movie Database offers free API keys. The request rate limiting is only imposed by IP address, not API key."""
-        """So there is no reason in stealing this one, just go get your own. www.themoviedb.org"""
+#The Movie Database offers free API keys. The request rate limiting is only imposed by IP address, not API key.
+#So there is no reason in stealing this one, just go get your own. www.themoviedb.org.
             faurl = requests.get('https://api.themoviedb.org/3/movie/'+str(movie['tmdbId'])+'?api_key='+'1f7708bb9a218ab891a5d438b1b63992')
             fajson = faurl.json()
             if 'physicalRelease' in movie:
