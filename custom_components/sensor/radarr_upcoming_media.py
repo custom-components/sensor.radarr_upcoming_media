@@ -20,7 +20,7 @@ from homeassistant.const import (
     CONF_API_KEY, CONF_HOST, CONF_PORT, CONF_MONITORED_CONDITIONS, CONF_SSL)
 from homeassistant.helpers.entity import Entity
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -59,9 +59,6 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     conditions = config.get(CONF_MONITORED_CONDITIONS)
     add_devices(
         [Radarr_UpcomingSensor(hass, config, sensor) for sensor in conditions], True)
-    directory = "www/custom-lovelace/upcoming-media-card/images/radarr/"
-    if not os.path.exists(directory):
-        os.makedirs(directory)
 class Radarr_UpcomingSensor(Entity):
     """Implementation of the Radarr sensor."""
 
@@ -83,6 +80,7 @@ class Radarr_UpcomingSensor(Entity):
         self._tz = timezone(str(hass.config.time_zone))
         self.type = sensor_type
         self._name = SENSOR_TYPES[self.type][0]
+        self.attribNum = []
 
     @property
     def name(self):
@@ -101,29 +99,33 @@ class Radarr_UpcomingSensor(Entity):
 
     @property
     def device_state_attributes(self):
-        directory = "www/custom-lovelace/upcoming-media-card/images/radarr/"
         """Return the state attributes of the sensor."""
         attributes = {}
-        attribNum = 0
+        self.attribNum = 0
         for movie in self.data:
-            attribNum += 1
-            p = open(directory + 'poster' + str(attribNum) + '.jpg','wb')
-            p.write(requests.get('http' + self.ssl + '://' + str(self.host) + ':' + str(self.port) + '/api' + re.sub('poster', 'poster-500', movie['images'][0]['url']) + '?apikey=' + self.apikey).content)
-            p.close()
-            b = open(directory + 'banner' + str(attribNum) + '.jpg','wb')
-            b.write(requests.get('http' + self.ssl + '://' + str(self.host) + ':' + str(self.port) + '/api' + re.sub('fanart', 'fanart-360', movie['images'][1]['url']) + '?apikey=' + self.apikey).content)
-            b.close()
-            attributes['poster' + str(attribNum)] = '../local/custom-lovelace/upcoming-media-card/images/radarr/poster' + str(attribNum) + '.jpg'
-            attributes['banner' + str(attribNum)] = '../local/custom-lovelace/upcoming-media-card/images/radarr/banner' + str(attribNum) + '.jpg'
-            attributes['title' + str(attribNum)] = movie['title']
-            attributes['subtitle' + str(attribNum)] = movie['genres']
+        """The movie database offers free API keys. The request rate limiting is only imposed by IP address, not API key."""
+        """So there is no point in stealing this one, just go get one."""
+            faurl = requests.get('https://api.themoviedb.org/3/movie/'+str(movie['tmdbId'])+'?api_key='+'1f7708bb9a218ab891a5d438b1b63992')
+            fajson = faurl.json()
             if 'physicalRelease' in movie:
-                attributes['airdate' + str(attribNum)] = movie['physicalRelease']
-                attributes['info' + str(attribNum)] = 'Available '
-            else:
-                attributes['airdate' + str(attribNum)] = movie['inCinemas']
-                attributes['info' + str(attribNum)] = 'In Theaters '
-            attributes['hasFile' + str(attribNum)] = movie['hasFile']
+                self.attribNum += 1
+                if 'physicalRelease' in movie:
+                    attributes['airdate' + str(self.attribNum)] = movie['physicalRelease']
+                    attributes['info' + str(self.attribNum)] = 'Available '
+                else:
+                    attributes['airdate' + str(self.attribNum)] = movie['inCinemas']
+                    attributes['info' + str(self.attribNum)] = 'In Theaters '
+                try:
+                    attributes['poster' + str(self.attribNum)] = 'https://image.tmdb.org/t/p/w500'+ fajson['poster_path']
+                except KeyError:
+                    attributes['poster' + str(self.attribNum)] = 'http://assets.fanart.tv/preview/movies/404368/movieposter/wreck-it-ralph-2-5ab70d7f39693.jpg'
+                try:
+                    attributes['banner' + str(self.attribNum)] = re.sub('https', 'http', fajson['moviebanner'][0]['url'])
+                except KeyError:
+                    attributes['banner' + str(self.attribNum)] = 'http://assets.fanart.tv/preview/movies/404368/movieposter/wreck-it-ralph-2-5ab70d7f39693.jpg'
+                attributes['title' + str(self.attribNum)] = movie['title']
+                attributes['subtitle' + str(self.attribNum)] = movie['studio']
+                attributes['hasFile' + str(self.attribNum)] = movie['hasFile']
         return attributes
 
     def update(self):
@@ -153,7 +155,7 @@ class Radarr_UpcomingSensor(Entity):
                 )
             else:
                 self.data = res.json()
-            self._state = len(self.data)
+            self._state = self.attribNum
         self._available = True
 
 def get_date(zone, offset=0):
