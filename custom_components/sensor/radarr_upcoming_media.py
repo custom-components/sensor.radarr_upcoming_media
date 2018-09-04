@@ -103,8 +103,8 @@ class Radarr_UpcomingSensor(Entity):
         attributes = {}
         self.attribNum = 0
         for movie in self.data:
-        """The movie database offers free API keys. The request rate limiting is only imposed by IP address, not API key."""
-        """So there is no point in stealing this one, just go get one."""
+        """The Movie Database offers free API keys. The request rate limiting is only imposed by IP address, not API key."""
+        """So there is no reason in stealing this one, just go get your own. www.themoviedb.org"""
             faurl = requests.get('https://api.themoviedb.org/3/movie/'+str(movie['tmdbId'])+'?api_key='+'1f7708bb9a218ab891a5d438b1b63992')
             fajson = faurl.json()
             if 'physicalRelease' in movie:
@@ -118,11 +118,11 @@ class Radarr_UpcomingSensor(Entity):
                 try:
                     attributes['poster' + str(self.attribNum)] = 'https://image.tmdb.org/t/p/w500'+ fajson['poster_path']
                 except KeyError:
-                    attributes['poster' + str(self.attribNum)] = 'http://assets.fanart.tv/preview/movies/404368/movieposter/wreck-it-ralph-2-5ab70d7f39693.jpg'
+                    attributes['poster' + str(self.attribNum)] = 'https://raw.githubusercontent.com/maykar/Home-Assistant-Config/master/notfound.jpg'
                 try:
-                    attributes['banner' + str(self.attribNum)] = re.sub('https', 'http', fajson['moviebanner'][0]['url'])
+                    attributes['banner' + str(self.attribNum)] = 'https://raw.githubusercontent.com/maykar/Home-Assistant-Config/master/notfound.jpg'
                 except KeyError:
-                    attributes['banner' + str(self.attribNum)] = 'http://assets.fanart.tv/preview/movies/404368/movieposter/wreck-it-ralph-2-5ab70d7f39693.jpg'
+                    attributes['banner' + str(self.attribNum)] = 'https://raw.githubusercontent.com/maykar/Home-Assistant-Config/master/notfound.jpg'
                 attributes['title' + str(self.attribNum)] = movie['title']
                 attributes['subtitle' + str(self.attribNum)] = movie['studio']
                 attributes['hasFile' + str(self.attribNum)] = movie['hasFile']
