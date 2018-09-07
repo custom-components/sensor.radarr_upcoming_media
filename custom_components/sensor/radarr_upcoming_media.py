@@ -2,7 +2,7 @@
 Radarr component for the Upcoming Media Lovelace card.
 
 This is a simple modification of the default radarr component,
-it can work with or without the default radarr component. 
+it can work with or without the default radarr component.
 
 """
 import logging
@@ -103,10 +103,6 @@ class Radarr_UpcomingSensor(Entity):
         attributes = {}
         self.attribNum = 0
         for movie in self.data:
-#The Movie Database offers free API keys. The request rate limiting is only imposed by IP address, not API key.
-#So there is no reason in stealing this one, just go get your own. www.themoviedb.org.
-            faurl = requests.get('https://api.themoviedb.org/3/movie/'+str(movie['tmdbId'])+'?api_key='+'1f7708bb9a218ab891a5d438b1b63992')
-            fajson = faurl.json()
             if 'physicalRelease' in movie:
                 self.attribNum += 1
                 if 'physicalRelease' in movie:
@@ -116,7 +112,7 @@ class Radarr_UpcomingSensor(Entity):
                     attributes['airdate' + str(self.attribNum)] = movie['inCinemas']
                     attributes['info' + str(self.attribNum)] = 'In Theaters '
                 try:
-                    attributes['poster' + str(self.attribNum)] = 'https://image.tmdb.org/t/p/w500'+ fajson['poster_path']
+                    attributes['poster' + str(self.attribNum)] = movie['poster_path']
                 except KeyError:
                     attributes['poster' + str(self.attribNum)] = 'https://raw.githubusercontent.com/maykar/Home-Assistant-Config/master/notfound.jpg'
                 try:
@@ -159,6 +155,13 @@ class Radarr_UpcomingSensor(Entity):
             else:
                 self.data = res.json()
             self._state = self.attribNum
+
+            for movie in self.data:
+#The Movie Database offers free API keys. The request rate limiting is only imposed by IP address, not API key.
+#So there is no reason in stealing this one, just go get your own. www.themoviedb.org.
+                faurl = requests.get('https://api.themoviedb.org/3/movie/'+str(movie['tmdbId'])+'?api_key='+'1f7708bb9a218ab891a5d438b1b63992')
+                fajson = faurl.json()
+                movie['poster_path'] = 'https://image.tmdb.org/t/p/w500'+ fajson['poster_path']
         self._available = True
 
 def get_date(zone, offset=0):
