@@ -5,8 +5,6 @@ it can work with or without the default radarr component.
 """
 import logging
 import time
-import re
-import os
 from datetime import datetime
 
 import requests
@@ -18,7 +16,7 @@ from homeassistant.const import (
     CONF_API_KEY, CONF_HOST, CONF_PORT, CONF_MONITORED_CONDITIONS, CONF_SSL)
 from homeassistant.helpers.entity import Entity
 
-__version__ = '0.0.9'
+__version__ = '0.1.0'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -98,28 +96,28 @@ class Radarr_UpcomingSensor(Entity):
         for movie in self.data:
             if movie['inCinemas'] > datetime.now().replace(microsecond=0).isoformat()+'Z':
                 self.attribNum += 1
-                attributes['airdate' + str(self.attribNum)] = movie['inCinemas']
-                attributes['info' + str(self.attribNum)] = 'In Theaters '
+                attributes['airdate{}'.format(str(self.attribNum))] = movie['inCinemas']
+                attributes['info{}'.format(str(self.attribNum))] = 'In Theaters '
             elif movie['physicalRelease'] > datetime.now().replace(microsecond=0).isoformat()+'Z':
                 self.attribNum += 1
-                attributes['airdate' + str(self.attribNum)] = movie['physicalRelease']
-                attributes['info' + str(self.attribNum)] = 'Available '
+                attributes['airdate{}'.format(str(self.attribNum))] = movie['physicalRelease']
+                attributes['info{}'.format(str(self.attribNum))] = 'Available '
             else:
                 continue
             try:
-                attributes['poster' + str(self.attribNum)] = movie['poster_path']
+                attributes['poster{}'.format(str(self.attribNum))] = movie['poster_path']
             except KeyError:
-                attributes['poster' + str(self.attribNum)] = 'https://i.imgur.com/GmAQyT5.jpg'
+                attributes['poster{}'.format(str(self.attribNum))] = 'https://i.imgur.com/GmAQyT5.jpg'
             try:
-                attributes['banner' + str(self.attribNum)] = 'https://i.imgur.com/fxX01Ic.jpg'
+                attributes['banner{}'.format(str(self.attribNum))] = 'https://i.imgur.com/fxX01Ic.jpg'
             except KeyError:
-                attributes['banner' + str(self.attribNum)] = 'https://i.imgur.com/fxX01Ic.jpg'
+                attributes['banner{}'.format(str(self.attribNum))] = 'https://i.imgur.com/fxX01Ic.jpg'
             try:
-                attributes['subtitle' + str(self.attribNum)] = movie['studio']
+                attributes['subtitle{}'.format(str(self.attribNum))] = movie['studio']
             except KeyError:
-                attributes['subtitle' + str(self.attribNum)] = 'unknown'
-            attributes['title' + str(self.attribNum)] = movie['title']
-            attributes['hasFile' + str(self.attribNum)] = movie['hasFile']
+                attributes['subtitle{}'.format(str(self.attribNum))] = 'unknown'
+            attributes['title{}'.format(str(self.attribNum))] = movie['title']
+            attributes['hasFile{}'.format(str(self.attribNum))] = movie['hasFile']
         return attributes
 
     def update(self):
@@ -143,7 +141,7 @@ class Radarr_UpcomingSensor(Entity):
             if self.days == 1:
                 self.data = list(
                     filter(
-                        lambda x: x['airDate'] == str(start),
+                        lambda x: x['physicalRelease'] == str(start),
                         res.json()
                     )
                 )
@@ -157,7 +155,7 @@ class Radarr_UpcomingSensor(Entity):
                 session = requests.Session()
                 tmdburl = session.get('http://api.themoviedb.org/3/movie/{}?api_key=1f7708bb9a218ab891a5d438b1b63992'.format(str(movie['tmdbId'])))
                 tmdbjson = tmdburl.json()
-                movie['poster_path'] = 'https://image.tmdb.org/t/p/w500'+ tmdbjson['poster_path']
+                movie['poster_path'] = 'https://image.tmdb.org/t/p/w500{}'.format(tmdbjson['poster_path'])
 
 def get_date(zone, offset=0):
     """Get date based on timezone and offset of days."""
