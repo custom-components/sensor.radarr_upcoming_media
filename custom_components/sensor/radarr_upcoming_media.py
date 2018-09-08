@@ -16,7 +16,7 @@ from homeassistant.const import (
     CONF_API_KEY, CONF_HOST, CONF_PORT, CONF_MONITORED_CONDITIONS, CONF_SSL)
 from homeassistant.helpers.entity import Entity
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -93,14 +93,14 @@ class Radarr_UpcomingSensor(Entity):
         """Return the state attributes of the sensor."""
         attributes = {}
         self.attribNum = 0
-        for movie in self.data:
+        for movie in sorted(self.data, key = lambda i: i['path']):
             if movie['inCinemas'] > datetime.now().replace(microsecond=0).isoformat()+'Z':
                 self.attribNum += 1
-                attributes['airdate{}'.format(str(self.attribNum))] = movie['inCinemas']
+                attributes['airdate{}'.format(str(self.attribNum))] = movie['path']
                 attributes['info{}'.format(str(self.attribNum))] = 'In Theaters '
-            elif movie['physicalRelease'] > datetime.now().replace(microsecond=0).isoformat()+'Z':
+            elif 'physicalRelease' in movie:
                 self.attribNum += 1
-                attributes['airdate{}'.format(str(self.attribNum))] = movie['physicalRelease']
+                attributes['airdate{}'.format(str(self.attribNum))] = movie['path']
                 attributes['info{}'.format(str(self.attribNum))] = 'Available '
             else:
                 continue
@@ -118,6 +118,7 @@ class Radarr_UpcomingSensor(Entity):
                 attributes['subtitle{}'.format(str(self.attribNum))] = 'unknown'
             attributes['title{}'.format(str(self.attribNum))] = movie['title']
             attributes['hasFile{}'.format(str(self.attribNum))] = movie['hasFile']
+            attributes['json'] = self.data
         return attributes
 
     def update(self):
@@ -156,6 +157,11 @@ class Radarr_UpcomingSensor(Entity):
                 tmdburl = session.get('http://api.themoviedb.org/3/movie/{}?api_key=1f7708bb9a218ab891a5d438b1b63992'.format(str(movie['tmdbId'])))
                 tmdbjson = tmdburl.json()
                 movie['poster_path'] = 'https://image.tmdb.org/t/p/w500{}'.format(tmdbjson['poster_path'])
+                if movie['inCinemas'] > datetime.now().replace(microsecond=0).isoformat()+'Z':
+                    movie['path'] = movie['inCinemas']
+                elif 'physicalRelease' in movie:
+                    movie['path'] = movie['physicalRelease']
+
 
 def get_date(zone, offset=0):
     """Get date based on timezone and offset of days."""
