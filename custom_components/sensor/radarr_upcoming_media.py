@@ -16,7 +16,7 @@ from homeassistant.const import (
     CONF_API_KEY, CONF_HOST, CONF_PORT, CONF_MONITORED_CONDITIONS, CONF_SSL)
 from homeassistant.helpers.entity import Entity
 
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -133,6 +133,13 @@ class Radarr_UpcomingSensor(Entity):
             except:
                 attributes['poster{}'.format(str(self.attribNum))] = 'https://i.imgur.com/GmAQyT5.jpg'
             try:
+                if (movie['images'][1][-4:] != 'None'):
+                    attributes['fanart{}'.format(str(self.attribNum))] = movie['images'][1]
+                else:
+                    attributes['fanart{}'.format(str(self.attribNum))] = movie['images'][0]
+            except:
+                attributes['fanart{}'.format(str(self.attribNum))] = ''
+            try:
                 attributes['banner{}'.format(str(self.attribNum))] = 'https://i.imgur.com/fxX01Ic.jpg'
             except:
                 attributes['banner{}'.format(str(self.attribNum))] = 'https://i.imgur.com/fxX01Ic.jpg'
@@ -174,7 +181,14 @@ class Radarr_UpcomingSensor(Entity):
                 session = requests.Session()
                 tmdburl = session.get('http://api.themoviedb.org/3/movie/{}?api_key=1f7708bb9a218ab891a5d438b1b63992'.format(str(movie['tmdbId'])))
                 tmdbjson = tmdburl.json()
-                movie['images'][0] = 'https://image.tmdb.org/t/p/w500{}'.format(tmdbjson['poster_path'])
+                try:
+                    movie['images'][0] = 'https://image.tmdb.org/t/p/w500{}'.format(tmdbjson['poster_path'])
+                except:
+                    movie['images'][0] = 'https://i.imgur.com/GmAQyT5.jpg'
+                try:
+                    movie['images'][1] = 'https://image.tmdb.org/t/p/w780{}'.format(tmdbjson['backdrop_path'])
+                except:
+                    movie['images'][1] = ''
                 if movie['inCinemas'] > datetime.now().replace(microsecond=0).isoformat()+'Z':
                     movie['path'] = movie['inCinemas']
                 elif 'physicalRelease' in movie:
