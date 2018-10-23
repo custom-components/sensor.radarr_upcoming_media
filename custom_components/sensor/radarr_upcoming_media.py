@@ -20,7 +20,7 @@ from homeassistant.const import (
     CONF_API_KEY, CONF_HOST, CONF_PORT, CONF_MONITORED_CONDITIONS, CONF_SSL)
 from homeassistant.helpers.entity import Entity
 
-__version__ = '0.1.6'
+__version__ = '0.1.7'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -138,8 +138,8 @@ class Radarr_UpcomingSensor(Entity):
             try:
                 if movie['ratings']['value'] > 0:
                     pre['rating'] = "\N{BLACK STAR}"+' '+str(movie['ratings']['value'])
-                else: pre['ratings'] = ''
-            except: pre['ratings'] = ''
+                else: pre['rating'] = ''
+            except: pre['rating'] = ''
             try: pre['poster'] = movie['images'][0]
             except: pre['poster'] = 'https://i.imgur.com/GmAQyT5.jpg'
             try:
