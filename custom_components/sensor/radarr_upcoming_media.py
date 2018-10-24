@@ -20,7 +20,7 @@ from homeassistant.const import (
     CONF_API_KEY, CONF_HOST, CONF_PORT, CONF_MONITORED_CONDITIONS, CONF_SSL)
 from homeassistant.helpers.entity import Entity
 
-__version__ = '0.1.7'
+__version__ = '0.1.8'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
     vol.Optional(CONF_SSL, default=False): cv.boolean,
     vol.Optional(CONF_URLBASE, default=DEFAULT_URLBASE): cv.string,
-    vol.Optional(CONF_THEATERS, default=False): cv.boolean,
+    vol.Optional(CONF_THEATERS, default=True): cv.boolean,
 })
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
