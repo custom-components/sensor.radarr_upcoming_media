@@ -40,9 +40,9 @@ sensor:
 
 | key | default | example |
 | --- | --- | --- |
-| title | $title | "The Walking Dead" |
+| title | $title | "Night of the Living Dead" |
 | line1 | $release | "In Theaters Mon, 10/31" if it's a theater release and more than a week away or "Available Monday" if it's a physical release and within a week.|
-| line2 | $genres | "Action, Adventure, Drama" |
-| line3 | $rating - $runtime | "★ 7.8 - 01:30"
-| line4 | $studio | "AMC"
+| line2 | $genres | "Action, Adventure, Comedy" |
+| line3 | $rating - $runtime | "★ 9.8 - 01:30"
+| line4 | $studio | "Laurel Group Inc."
 | icon | mdi:arrow-down-bold-circle | https://materialdesignicons.com/icon/arrow-down-bold-circle
