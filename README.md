@@ -22,6 +22,7 @@ sensor:
   port: 7878
   days: 120
   ssl: true
+  theaters: false
 ```
 
 ### Options
