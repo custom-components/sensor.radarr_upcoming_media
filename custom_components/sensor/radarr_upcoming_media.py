@@ -20,7 +20,7 @@ from homeassistant.const import (
     CONF_API_KEY, CONF_HOST, CONF_PORT, CONF_MONITORED_CONDITIONS, CONF_SSL)
 from homeassistant.helpers.entity import Entity
 
-__version__ = '0.1.8'
+__version__ = '0.1.9'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -117,7 +117,7 @@ class Radarr_UpcomingSensor(Entity):
                 pre['line2_default'] = '$genres'
                 pre['line3_default'] = '$rating - $runtime'
                 pre['line4_default'] = '$studio'
-                pre['icon'] = 'mdi:arrow-down-bold-circle'
+                pre['icon'] = 'mdi:arrow-down-bold'
             if movie['inCinemas'] > datetime.utcnow().isoformat()[:19]+'Z':
                 if not self.theaters: continue
                 self.attribNum += 1
