@@ -46,4 +46,4 @@ sensor:
 | line2 | $genres | "Action, Adventure, Comedy" |
 | line3 | $rating - $runtime | "★ 9.8 - 01:30"
 | line4 | $studio | "Laurel Group Inc."
-| icon | mdi:arrow-down-bold-circle | https://materialdesignicons.com/icon/arrow-down-bold-circle
+| icon | mdi:arrow-down-bold | https://materialdesignicons.com/icon/arrow-down-bold
