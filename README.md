@@ -1,3 +1,13 @@
+___
+
+<h1 align="center"> :warning:  THIS IS THE DEV BRANCH!  :warning:</h1>
+<h2 align="center">
+May contain bugs, broken features, and should generally be avoided.</br></br>Master branch is located here:</br> https://github.com/custom-components/sensor.radarr_upcoming_media</h2>
+
+
+___
+
+
 # Radarr Upcoming Media Component
 
 Component required to use the associated Lovelace card: [Upcoming_Media_Card](https://github.com/custom-cards/upcoming-media-card)</br>
@@ -23,6 +33,7 @@ sensor:
   days: 120
   ssl: true
   theaters: false
+  max: 10
 ```
 
 ### Options
@@ -36,6 +47,7 @@ sensor:
 | days | 60 | no | How many days to look ahead for the upcoming sensor, 1 means today only.
 | ssl | false | no | Whether or not to use SSL for Radarr. Set to `True` if you use SSL.
 | theaters | true | no | Show or hide theater releases.
+| max | 5 | no | Max number of items in sensor.
 
 ### Card Content Defaults
 
