@@ -44,8 +44,8 @@ sensor:
 | host | localhost | no | The host Radarr is running on.
 | port | 7878 | no | The port Radarr is running on.
 | urlbase | / | no | The base URL Radarr is running under.
-| days | 60 | no | How many days to look ahead for the upcoming sensor, 1 means today only.
-| ssl | false | no | Whether or not to use SSL for Radarr. Set to `True` if you use SSL.
+| days | 60 | no | How many days to look ahead for the upcoming sensor.
+| ssl | false | no | Whether or not to use SSL for Radarr.
 | theaters | true | no | Show or hide theater releases.
 | max | 5 | no | Max number of items in sensor.
 
