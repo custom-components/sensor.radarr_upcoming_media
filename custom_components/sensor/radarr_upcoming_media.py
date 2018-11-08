@@ -7,9 +7,12 @@ https://github.com/custom-components/sensor.radarr_upcoming_media
 https://github.com/custom-cards/upcoming-media-card
 
 """
-import logging, time, json, requests
+import json
+import time
+import logging
 from datetime import date, datetime
-import voluptuous as vol, homeassistant.helpers.config_validation as cv
+import voluptuous as vol
+import homeassistant.helpers.config_validation as cv
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import CONF_API_KEY, CONF_HOST, CONF_PORT, CONF_SSL
 from homeassistant.helpers.entity import Entity
@@ -34,9 +37,11 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_MAX, default=5): cv.string,
 })
 
+
 def setup_platform(hass, config, add_devices, discovery_info=None):
     add_devices([RadarrUpcomingMediaSensor(hass, config)], True)
-    
+
+
 class RadarrUpcomingMediaSensor(Entity):
 
     def __init__(self, hass, conf):
@@ -48,14 +53,16 @@ class RadarrUpcomingMediaSensor(Entity):
         self.port = conf.get(CONF_PORT)
         self.apikey = conf.get(CONF_API_KEY)
         self.urlbase = conf.get(CONF_URLBASE)
-        if self.urlbase: self.urlbase = "{}/".format(self.urlbase.strip('/'))
+        if self.urlbase:
+            self.urlbase = "{}/".format(self.urlbase.strip('/'))
         self.days = int(conf.get(CONF_DAYS))
         self.theaters = conf.get(CONF_THEATERS)
         self.max_items = int(conf.get(CONF_MAX))
         self._state = None
-        self.attribNum = 0
-        self.refresh = False
+        self.change_detected = False
         self.data = []
+        self.card_json = []
+        self.api_json = []
 
     @property
     def name(self):
@@ -67,108 +74,141 @@ class RadarrUpcomingMediaSensor(Entity):
 
     @property
     def device_state_attributes(self):
-        if self.refresh:
+        attributes = {}
+        if self.change_detected:
             """Return JSON for the sensor."""
-            self.attribNum = 0
-            attributes = {}
+            self.card_json = []
             default = {}
-            data = []
             default['title_default'] = '$title'
             default['line1_default'] = '$release'
             default['line2_default'] = '$genres'
             default['line3_default'] = '$rating - $runtime'
             default['line4_default'] = '$studio'
             default['icon'] = 'mdi:arrow-down-bold'
-            data.append(default)
-            for movie in sorted(self.data, key = lambda i: i['path']):
-                pre = {}
-                try:
-                    """Get days between now and release"""
-                    n=list(map(int, self.now.split("-")))
-                    r=list(map(int, movie['path'][:-10].split("-")))
-                    today = date(n[0],n[1],n[2])
-                    airday = date(r[0],r[1],r[2])
-                    daysBetween = (airday-today).days
-                except: continue
-                if movie['inCinemas'] >= datetime.utcnow().isoformat()[:19]+'Z':
-                    if not self.theaters: continue
-                    pre['airdate'] = movie['inCinemas']
-                    if daysBetween <= 7: pre['release'] = 'In Theaters $day'
-                    else: pre['release'] = 'In Theaters $day, $date'
+            self.card_json.append(default)
+            for movie in sorted(self.data, key=lambda i: i['path']):
+                card_item = {}
+                if ('inCinemas' in movie and
+                        days_until(movie['inCinemas'], self._tz) > -1):
+                        if not self.theaters:
+                            continue
+                        card_item['airdate'] = movie['inCinemas']
+                        if days_until(movie['inCinemas'], self._tz) <= 7:
+                            card_item['release'] = 'In Theaters $day'
+                        else:
+                            card_item['release'] = 'In Theaters $day, $date'
                 elif 'physicalRelease' in movie:
-                    pre['airdate'] = movie['physicalRelease']
-                    if daysBetween <= 7: pre['release'] = 'Available $day'
-                    else: pre['release'] = 'Available $day, $date'
-                else: continue
-                pre['flag'] = movie.get('hasFile','')
-                pre['title'] = movie.get('title','')
-                pre['runtime'] = movie.get('runtime','')
-                pre['studio'] = movie.get('studio','')
-                pre['genres'] = movie.get('genres','')
-                try:
-                    if movie['ratings']['value'] > 0:
-                        pre['rating'] = '\N{BLACK STAR} '+str(movie['ratings']['value'])
-                    else: pre['rating'] = ''
-                except: pre['rating'] = ''
-                try: pre['poster'] = movie['images'][0]
-                except: continue
-                try:
-                    if '.jpg' in movie['images'][1]: pre['fanart'] = movie['images'][1]
-                    else: pre['fanart'] = ''
-                except: pre['fanart'] = ''
-                self.attribNum += 1
-                data.append(pre)
-            self._state = self.attribNum
-            attributes['data'] = json.dumps(data)
-            return attributes
-            self.refresh = False
+                    card_item['airdate'] = movie['physicalRelease']
+                    if days_until(movie['physicalRelease'], self._tz) <= 7:
+                        card_item['release'] = 'Available $day'
+                    else:
+                        card_item['release'] = 'Available $day, $date'
+                else:
+                    continue
+                card_item['flag'] = movie.get('hasFile', '')
+                card_item['title'] = movie.get('title', '')
+                card_item['runtime'] = movie.get('runtime', '')
+                card_item['studio'] = movie.get('studio', '')
+                card_item['genres'] = movie.get('genres', '')
+                if 'ratings' in movie and movie['ratings']['value'] > 0:
+                    card_item['rating'] = ('\N{BLACK STAR} ' +
+                                           str(movie['ratings']['value']))
+                else:
+                    card_item['rating'] = ''
+                if 'images' in movie:
+                    card_item['poster'] = movie['images'][0]
+                    if '.jpg' in movie['images'][1]:
+                        card_item['fanart'] = movie['images'][1]
+                    else:
+                        card_item['fanart'] = ''
+                else:
+                    continue
+                self.card_json.append(card_item)
+                self.change_detected = False
+        attributes['data'] = json.dumps(self.card_json)
+        return attributes
 
     def update(self):
+        import requests
+        radarr = requests.Session()
         start = get_date(self._tz)
         end = get_date(self._tz, self.days)
         try:
-            res = requests.get('http{0}://{1}:{2}/{3}api/calendar?start={4}&end={5}'.format(
-                    self.ssl, self.host, self.port,self.urlbase, start, end),
-                    headers={'X-Api-Key': self.apikey}, timeout=10)
+            api = radarr.get(('http{0}://{1}:{2}/{3}api/calendar?start={4}'
+                              '&end={5}').format(self.ssl, self.host,
+                                                 self.port, self.urlbase,
+                                                 start, end),
+                             headers={'X-Api-Key': self.apikey}, timeout=10)
         except OSError:
             _LOGGER.warning("Host %s is not available", self.host)
-            self._state = None
+            self._state = 'Offline'
             return
 
-        if res.status_code == 200:
+        if api.status_code == 200:
+            self._state = 'Online'
             if self.days == 1:
-                inCinemas = list(filter(lambda
-                    x: x['inCinemas'][:-10] == str(start), res.json()))
-                physicalRelease = list(filter(lambda
-                    x: x['physicalRelease'][:-10] == str(start), res.json()))
-                combined = inCinemas + physicalRelease
-                json_data = combined[:self.max_items]
+                in_cinemas = list(filter(
+                    lambda x: x['inCinemas'][:-10] == str(start), api.json()))
+                physical_release = (list(filter(lambda x: x[
+                    'physicalRelease'][:-10] == str(start), api.json())))
+                combined = in_cinemas + physical_release
+                self.api_json = combined[:self.max_items]
             else:
-                json_data = res.json()[:self.max_items]
+                self.api_json = api.json()[:self.max_items]
 
             """Radarr's API isn't great, so we use tmdb to suppliment"""
-            if json_data != self.data:
-                self.data = json_data
-                self.refresh = True
+            if self.api_json != self.data:
+                self.data = self.api_json
+                self.change_detected = True
                 for movie in self.data:
                     session = requests.Session()
                     try:
-                        tmdburl = session.get('http://api.tmdb.org/3/movie/{}?api_key='
-                        '1f7708bb9a218ab891a5d438b1b63992'.format(str(movie['tmdbId'])))
-                        tmdbjson = tmdburl.json()
+                        tmdb_url = session.get('http://api.tmdb.org/3/movie/'
+                                               '{}?api_key=1f7708bb9a218ab891'
+                                               'a5d438b1b63992'.format(
+                                                str(movie['tmdbId'])))
+                        tmdb_json = tmdb_url.json()
                     except:
-                        _LOGGER.warning('api.themoviedb.org is not available')
+                        _LOGGER.warning('api.themoviedb.org is not responding')
                         return
-                    try: movie['images'][0] = 'https://image.tmdb.org/t/p/w500{}'.format(tmdbjson['poster_path'])
-                    except: movie['images'][0] = ''
-                    try: movie['images'][1] = 'https://image.tmdb.org/t/p/w780{}'.format(tmdbjson['backdrop_path'])
-                    except: movie['images'][1] = ''
-                    if movie['inCinemas'] >= datetime.utcnow().isoformat()[:19]+'Z': movie['path'] = movie['inCinemas']
-                    elif 'physicalRelease' in movie: movie['path'] = movie['physicalRelease']
-                    else: continue
-                    try: movie['genres'] = ', '.join([genre['name'] for genre in tmdbjson['genres']][:3])
-                    except: movie['genres'] = ''
+                    image_url = 'https://image.tmdb.org/t/p/w%s%s'
+                    try:
+                        movie['images'][0] = image_url % (
+                            '500', tmdb_json['poster_path'])
+                    except:
+                        movie['images'][0] = ''
+                    try:
+                        movie['images'][1] = image_url % (
+                            '780', tmdb_json['backdrop_path'])
+                    except:
+                        movie['images'][1] = ''
+                    if days_until(movie['inCinemas'], self._tz) > -1:
+                        movie['path'] = movie['inCinemas']
+                    elif 'physicalRelease' in movie:
+                        movie['path'] = movie['physicalRelease']
+                    else:
+                        continue
+                    try:
+                        movie['genres'] = ', '.join([genre['name'] for genre
+                                                     in tmdb_json['genres'
+                                                                  ]][:3])
+                    except:
+                        movie['genres'] = ''
+
 
 def get_date(zone, offset=0):
     """Get date based on timezone and offset of days."""
-    return datetime.date(datetime.fromtimestamp(time.time() + 86400 * offset, tz=zone))
+    return datetime.date(datetime.fromtimestamp(
+        time.time() + 86400 * offset, tz=zone))
+
+
+def days_until(date, tz):
+    from pytz import utc
+    date = datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
+    date = str(date.replace(tzinfo=utc).astimezone(tz))[:10]
+    date = time.strptime(date, '%Y-%m-%d')
+    date = time.mktime(date)
+    now = datetime.now().strftime('%Y-%m-%d')
+    now = time.strptime(now, '%Y-%m-%d')
+    now = time.mktime(now)
+    return int((date - now) / 86400)
