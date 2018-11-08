@@ -10,8 +10,8 @@ ___
 
 # Radarr Upcoming Media Component
 
-Home Assistant component to feed [Upcoming Media Card](https://github.com/custom-cards/upcoming-media-card) with
-Radarr's upcoming releases.</br>
+Home Assistant component to feed [Upcoming Media Card](https://github.com/custom-components/sensor.radarr_upcoming_media) with
+Radarr's upcoming added media.</br>
 This component does not require, nor conflict with, the default Radarr component.</br></br>
 <link href="https://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext" rel="stylesheet"><a class="bmc-button" target="_blank" href="https://www.buymeacoffee.com/FgwNR2l"><img src="https://www.buymeacoffee.com/assets/img/BMC-btn-logo.svg" alt="Buy me a coffee"><span style="margin-left:5px">If you feel I deserve it, you can buy me a coffee</span></a></br>
 </br>
@@ -21,8 +21,10 @@ This component does not require, nor conflict with, the default Radarr component
 ## Installation:
 
 1. Install this component by copying to your `/custom_components/sensor/` folder.
-2. Add the code to your `configuration.yaml` using the config options below example. 
-3. **You will need to restart for the component to start working.**
+2. Install the card: [Upcoming Media Card](https://github.com/custom-cards/upcoming-media-card)
+3. Add the code to your `configuration.yaml` using the config options below.
+4. Add the code for the card to your `ui-lovelace.yaml`. 
+5. **You will need to restart after installation for the component to start working.**
 
 ### Options
 
@@ -37,7 +39,8 @@ This component does not require, nor conflict with, the default Radarr component
 | theaters | true | no | Show or hide theater releases.
 | max | 5 | no | Max number of items in sensor.
 
-### Sample config:
+**Do not just copy examples, please use config options above to build your own!**
+### Sample for configuration.yaml:
 
 ```
 sensor:
@@ -50,6 +53,13 @@ sensor:
   theaters: false
   max: 10
 ```
+
+### Sample for ui-lovelace.yaml:
+
+    - type: custom:upcoming-media-card
+      entity: sensor.radarr_upcoming_media
+      title: Upcoming Movies
+      
 
 ### Card Content Defaults
 
