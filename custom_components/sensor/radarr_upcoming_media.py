@@ -141,7 +141,7 @@ class RadarrUpcomingMediaSensor(Entity):
                              headers={'X-Api-Key': self.apikey}, timeout=10)
         except OSError:
             _LOGGER.warning("Host %s is not available", self.host)
-            self._state = 'Offline'
+            self._state = '%s cannot be reached' % self.host
             return
 
         if api.status_code == 200:
@@ -194,6 +194,8 @@ class RadarrUpcomingMediaSensor(Entity):
                                                                   ]][:3])
                     except:
                         movie['genres'] = ''
+        else:
+            self._state = '%s cannot be reached' % self.host
 
 
 def get_date(zone, offset=0):
