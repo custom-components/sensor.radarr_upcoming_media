@@ -63,6 +63,7 @@ class RadarrUpcomingMediaSensor(Entity):
         self.data = []
         self.card_json = []
         self.api_json = []
+        self.media_ids = []
 
     @property
     def name(self):
@@ -157,7 +158,8 @@ class RadarrUpcomingMediaSensor(Entity):
                 self.api_json = api.json()[:self.max_items]
 
             """Radarr's API isn't great, so we use tmdb to suppliment"""
-            if self.api_json != self.data:
+            if media_ids(self.api_json) != self.media_ids:
+                self.media_ids = media_ids(self.api_json)
                 self.data = self.api_json
                 self.change_detected = True
                 for movie in self.data:
@@ -214,3 +216,13 @@ def days_until(date, tz):
     now = time.strptime(now, '%Y-%m-%d')
     now = time.mktime(now)
     return int((date - now) / 86400)
+
+
+def media_ids(data):
+    ids = []
+    for media in data:
+        if 'tmdbId' in media:
+            ids.append(str(media['tmdbId']))
+        else:
+            continue
+    return ids
