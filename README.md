@@ -1,13 +1,3 @@
-___
-
-<h1 align="center"> :warning:  THIS IS THE DEV BRANCH!  :warning:</h1>
-<h2 align="center">
-May contain bugs, broken features, and should generally be avoided.</br></br>Master branch is located here:</br> https://github.com/custom-components/sensor.radarr_upcoming_media</h2>
-
-
-___
-
-
 # Radarr Upcoming Media Component
 
 Home Assistant component to feed [Upcoming Media Card](https://github.com/custom-components/sensor.radarr_upcoming_media) with
