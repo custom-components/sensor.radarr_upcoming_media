@@ -8,6 +8,8 @@ This component does not require, nor conflict with, the default Radarr component
 <a href="https://www.themoviedb.org/"><img width="200" src="https://www.themoviedb.org/assets/1/v4/logos/408x161-powered-by-rectangle-green-bb4301c10ddc749b4e79463811a68afebeae66ef43d17bcfd8ff0e60ded7ce99.png">
 </br>This product uses the TMDb API but is not endorsed or certified by TMDb.</a>
 
+### If you're having issues, check out the [troubleshooting guide](https://github.com/custom-cards/upcoming-media-card/blob/master/troubleshooting.md) before posting an issue or asking for help on the forums.
+
 ## Installation:
 
 1. Install this component by copying to your `/custom_components/sensor/` folder.
