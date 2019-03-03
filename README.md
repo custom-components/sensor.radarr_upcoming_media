@@ -12,7 +12,7 @@ This component does not require, nor conflict with, the default Radarr component
 
 ## Installation:
 
-1. Install this component by copying to your `/custom_components/sensor/` folder.
+1. Install this component by copying sensor.py to `/custom_components/sonarr_upcoming_media/`.
 2. Install the card: [Upcoming Media Card](https://github.com/custom-cards/upcoming-media-card)
 3. Add the code to your `configuration.yaml` using the config options below.
 4. Add the code for the card to your `ui-lovelace.yaml`. 
