@@ -177,12 +177,12 @@ class RadarrUpcomingMediaSensor(Entity):
                         movie['images'][0] = image_url % (
                             '500', tmdb_json['poster_path'])
                     except:
-                        movie['images'][0] = ''
+                        continue
                     try:
                         movie['images'][1] = image_url % (
                             '780', tmdb_json['backdrop_path'])
                     except:
-                        movie['images'][1] = ''
+                        pass
                     if days_until(movie['inCinemas'], self._tz) > -1:
                         movie['path'] = movie['inCinemas']
                     elif 'physicalRelease' in movie:
