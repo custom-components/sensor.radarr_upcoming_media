@@ -48,10 +48,10 @@ Read through these two resources before posting issues to GitHub or the forums.
 sensor:
  - platform: radarr_upcoming_media
    api_key: YOUR_API_KEY
-   host: 192.168.1.4
+   host: 127.0.0.1
    port: 7878
-   days: 120
-   ssl: true
+   days: 14
+   ssl: false
    theaters: false
    max: 10
 ```
