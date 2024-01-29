@@ -88,43 +88,45 @@ class RadarrUpcomingMediaSensor(Entity):
             self.card_json.append(default)
             for movie in sorted(self.data, key=lambda i: i['path']):
                 card_item = {}
-                in_cinemas_date = movie.get('inCinemas')
-                physical_release_date = movie.get('physicalRelease')
-                digital_release_date = movie.get('digitalRelease')
-
-                should_include = False
-                if in_cinemas_date and days_until(in_cinemas_date, self._tz) > -1:
-                    should_include = self.theaters
-                if not should_include and (physical_release_date and days_until(physical_release_date, self._tz) > -1 or
-                                        digital_release_date and days_until(digital_release_date, self._tz) > -1):
-                    should_include = True
-
-                if should_include:
-                    card_item['airdate'] = movie.get('inCinemas', movie.get('physicalRelease', movie.get('digitalRelease')))
-                    if days_until(card_item['airdate'], self._tz) <= 7:
+                if ('inCinemas' in movie and
+                        days_until(movie['inCinemas'], self._tz) > -1):
+                        if not self.theaters:
+                            continue
+                        card_item['airdate'] = movie['inCinemas']
+                        if days_until(movie['inCinemas'], self._tz) <= 7:
+                            card_item['release'] = 'In Theaters $day'
+                        else:
+                            card_item['release'] = 'In Theaters $day, $date'
+                elif 'physicalRelease' in movie:
+                    card_item['airdate'] = movie['physicalRelease']
+                    if days_until(movie['physicalRelease'], self._tz) <= 7:
                         card_item['release'] = 'Available $day'
                     else:
                         card_item['release'] = 'Available $day, $date'
-                    card_item['flag'] = movie.get('hasFile', '')
-                    card_item['title'] = movie.get('title', '')
-                    card_item['runtime'] = movie.get('runtime', '')
-                    card_item['studio'] = movie.get('studio', '')
-                    card_item['genres'] = movie.get('genres', '')
-                    if 'ratings' in movie and movie['ratings'].get('value', 0) > 0:
-                        card_item['rating'] = ('\N{BLACK STAR} ' +
-                                            str(movie['ratings']['value']))
+                else:
+                    continue
+                card_item['flag'] = movie.get('hasFile', '')
+                card_item['title'] = movie.get('title', '')
+                card_item['runtime'] = movie.get('runtime', '')
+                card_item['studio'] = movie.get('studio', '')
+                card_item['genres'] = movie.get('genres', '')
+                if 'ratings' in movie and movie['ratings'].get('value', 0) > 0:
+                    card_item['rating'] = ('\N{BLACK STAR} ' +
+                                        str(movie['ratings']['value']))
+                else:
+                    card_item['rating'] = ''
+                if 'images' in movie:
+                    if len(movie['images']):
+                        card_item['poster'] = movie['images'][0]
+                    if len(movie['images']) > 1 and '.jpg' in movie['images'][1]:
+                        card_item['fanart'] = movie['images'][1]
                     else:
-                        card_item['rating'] = ''
-                    if 'images' in movie:
-                        if len(movie['images']):
-                            card_item['poster'] = movie['images'][0]
-                        if len(movie['images']) > 1 and '.jpg' in movie['images'][1]:
-                            card_item['fanart'] = movie['images'][1]
-                        else:
-                            card_item['fanart'] = ''
-                    card_item['deep_link'] = f'http://{self.host}:{self.port}/movie/{movie.get("tmdbId")}'
-                    self.card_json.append(card_item)
-            self.change_detected = False
+                        card_item['fanart'] = ''
+                else:
+                    continue
+                card_item['deep_link'] = f'http://{self.host}:{self.port}/movie/{movie.get("tmdbId")}'
+                self.card_json.append(card_item)
+                self.change_detected = False
         attributes['data'] = self.card_json
         return attributes
 
