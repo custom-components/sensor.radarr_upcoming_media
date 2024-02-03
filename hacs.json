@@ -1,0 +1,5 @@
+{
+    "name": "Radarr Upcoming Media",
+    "content_in_root": false,
+    "domains": ["sensor"]
+}
