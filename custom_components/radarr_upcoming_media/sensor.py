@@ -84,6 +84,7 @@ class RadarrUpcomingMediaSensor(Entity):
             default['line2_default'] = '$genres'
             default['line3_default'] = '$rating - $runtime'
             default['line4_default'] = '$studio'
+            default['line5_default'] = '$trailer'
             default['icon'] = 'mdi:arrow-down-bold'
             self.card_json.append(default)
             for movie in sorted(self.data, key=lambda i: i['path']):
@@ -111,10 +112,14 @@ class RadarrUpcomingMediaSensor(Entity):
                 card_item['studio'] = movie.get('studio', '')
                 card_item['genres'] = movie.get('genres', '')
                 if 'ratings' in movie and movie['ratings'].get('value', 0) > 0:
-                    card_item['rating'] = ('\N{BLACK STAR} ' +
-                                        str(movie['ratings']['value']))
+                    card_item['rating'] = ('\N{BLACK STAR} ' + str(movie['ratings']['value']))
                 else:
                     card_item['rating'] = ''
+                card_item['summary'] = movie.get('overview', '')
+                if 'youTubeTrailerId' in movie:
+                    card_item['trailer'] = f'https://www.youtube.com/watch?v={movie["youTubeTrailerId"]}'
+                else:
+                    card_item['trailer'] = ''
                 if 'images' in movie:
                     if len(movie['images']):
                         card_item['poster'] = movie['images'][0]
@@ -122,8 +127,6 @@ class RadarrUpcomingMediaSensor(Entity):
                         card_item['fanart'] = movie['images'][1]
                     else:
                         card_item['fanart'] = ''
-                else:
-                    continue
                 protocol = 'https' if self.ssl else 'http'
                 card_item['deep_link'] = f'{protocol}://{self.host}:{self.port}/movie/{movie.get("tmdbId")}'
                 self.card_json.append(card_item)
