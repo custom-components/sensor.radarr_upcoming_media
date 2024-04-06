@@ -98,6 +98,12 @@ class RadarrUpcomingMediaSensor(Entity):
                             card_item['release'] = 'In Theaters $day'
                         else:
                             card_item['release'] = 'In Theaters $day, $date'
+                elif 'digitalRelease' in movie:
+                    card_item['airdate'] = movie['digitalRelease']
+                    if days_until(movie['digitalRelease'], self._tz) <= 7:
+                        card_item['release'] = 'Available Online $day'
+                    else:
+                        card_item['release'] = 'Available Online $day, $date'
                 elif 'physicalRelease' in movie:
                     card_item['airdate'] = movie['physicalRelease']
                     if days_until(movie['physicalRelease'], self._tz) <= 7:
@@ -155,9 +161,11 @@ class RadarrUpcomingMediaSensor(Entity):
             if self.days == 1:
                 in_cinemas = list(filter(
                     lambda x: x['inCinemas'][:-10] == str(start), api.json()))
+                digital_release = list(filter(lambda x: x[
+                    'digitalRelease'][:-10] == str(start), api.json()))
                 physical_release = (list(filter(lambda x: x[
                     'physicalRelease'][:-10] == str(start), api.json())))
-                combined = in_cinemas + physical_release
+                combined = in_cinemas + digital_release + physical_release
                 self.api_json = combined[:self.max_items]
             else:
                 self.api_json = api.json()[:self.max_items]
