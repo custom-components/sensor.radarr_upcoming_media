@@ -4,7 +4,7 @@
       "user": {
         "data": {
           "api_key": "Radarr API key",
-          "days": "How many days look ahead for the upcomming sensor",
+          "days": "How many days look ahead for the upcoming sensor",
           "name": "Name",
           "host": "Radarr address",
           "port": "Radarr port",
