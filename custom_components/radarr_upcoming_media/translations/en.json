@@ -26,5 +26,16 @@
       "cannot_be_reached": "Radarr cannot be reached",
       "tmdb_not_responding": "TMDB API is not responding"
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "days": "How many days look ahead for the upcoming sensor",
+          "max": "Max number of items in sensor",
+          "theaters": "Theaters"
+        }
+      }
+    }
   }
 }
