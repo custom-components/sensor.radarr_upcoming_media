@@ -115,7 +115,7 @@ def parse_data(inData, tz, host, port, ssl, theaters):
         card_item['studio'] = movie.get('studio', '')
         card_item['genres'] = movie.get('genres', '')
 
-        if 'ratings' in movie and movie['ratings'].get('value', 0) > 0:
+        if 'ratings' in movie and movie['ratings'] and movie['ratings'].get('value', 0) > 0:
             card_item['rating'] = ('\N{BLACK STAR} ' + str(movie['ratings']['value']))
         else:
             card_item['rating'] = ''
