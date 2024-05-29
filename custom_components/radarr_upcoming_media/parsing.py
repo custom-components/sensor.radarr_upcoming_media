@@ -44,7 +44,7 @@ def view_count(data):
             continue
     return ids
 
-def parse_data(inData, tz, host, port, ssl, theaters):
+def parse_data(inData, tz, host, port, ssl, theaters, urlbase):
     """Radarr's API isn't great, so we use tmdb to suppliment"""
     data = []
 
@@ -132,7 +132,7 @@ def parse_data(inData, tz, host, port, ssl, theaters):
             else:
                 card_item['fanart'] = ''
 
-        card_item['deep_link'] = f'http{'s' if ssl else ''}://{host}:{port}/movie/{movie.get("tmdbId")}'
+        card_item['deep_link'] = f'http{"s" if ssl else ""}://{host}:{port}/{urlbase.strip("/") + "/" if urlbase else ""}movie/{movie.get("tmdbId")}'
         card_json.append(card_item)
 
 
