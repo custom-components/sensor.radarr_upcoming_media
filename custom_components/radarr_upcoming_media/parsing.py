@@ -90,13 +90,16 @@ def parse_data(inData, tz, host, port, ssl, theaters, urlbase):
         if('inCinemas' in movie and days_until(movie['inCinemas'], tz) > -1):
             if not theaters:
                 continue
+            card_item['airdate'] = movie['inCinemas']
             if days_until(movie['inCinemas'], tz) <= 7:
                 card_item['release'] = 'In Theaters $day'
             else:
                 card_item['release'] = 'In Theaters $day, $date'
-        elif 'digitalRelease' in movie:
+        elif 'digitalRelease' in movie:   
             card_item['airdate'] = movie['digitalRelease']
-            if days_until(movie['digitalRelease'], tz) <= 7:
+            if movie.get('hasFile', False):
+                card_item['release'] = 'Available Now'
+            elif days_until(movie['digitalRelease'], tz) <= 7:
                 card_item['release'] = 'Available Online $day'
             else:
                 card_item['release'] = 'Available Online $day, $date'
