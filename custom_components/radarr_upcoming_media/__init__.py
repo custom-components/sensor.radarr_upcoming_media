@@ -22,7 +22,6 @@ from .radarr_api import (
     FailedToLogin,
     RadarrCannotBeReached
 )
-from .parsing import TMDBApiNotResponding
 
 PLATFORMS = {
     Platform.SENSOR
@@ -46,8 +45,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         raise ConfigEntryNotReady('Failed to Log-in') from err
     except RadarrCannotBeReached as err:
         raise ConfigEntryNotReady('Radarr cannot be reached') from err
-    except TMDBApiNotResponding as err:
-        raise ConfigEntryNotReady('TMDB API is not responding') from err
     coordinator = RadarrDataCoordinator(hass, client)
 
     await coordinator.async_config_entry_first_refresh()

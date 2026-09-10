@@ -24,7 +24,6 @@ from .radarr_api import (
     FailedToLogin,
     RadarrCannotBeReached
 )
-from .parsing import TMDBApiNotResponding
 
 from .options_flow import RadarrOptionFlow
 
@@ -71,8 +70,6 @@ class RadarrConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors = {'base': 'failed_to_login'}
             except RadarrCannotBeReached as err:
                 errors = {'base': 'cannot_be_reached'}
-            except TMDBApiNotResponding as err:
-                errors = {'base': 'tmdb_not_responding'}
             else:
                 return self.async_create_entry(title=user_input[CONF_NAME] if len(user_input[CONF_NAME]) > 0 else "Radarr Upcoming Media", data=user_input)
 

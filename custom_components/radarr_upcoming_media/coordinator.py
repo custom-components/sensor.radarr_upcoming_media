@@ -12,7 +12,6 @@ from .radarr_api import (
     FailedToLogin,
     RadarrCannotBeReached
 )
-from .parsing import TMDBApiNotResponding
 
 _LOGGER= logging.getLogger(__name__)
 
@@ -35,7 +34,5 @@ class RadarrDataCoordinator(DataUpdateCoordinator[Dict[str,Any]]):
             raise ConfigEntryNotReady('Failed to Log-in') from err
         except RadarrCannotBeReached as err:
             raise ConfigEntryNotReady('Radarr cannot be reached') from err
-        except TMDBApiNotResponding as err:
-            raise ConfigEntryNotReady('TMDB API is not responding') from err
         except Exception as err:
             raise ConfigEntryError('Radarr encoutered unknown') from err
